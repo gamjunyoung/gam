@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./Summoner.scss";
 import { IoIosRefresh } from "react-icons/io";
 import { TbCapture } from "react-icons/tb";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { QueueType } from "../types/general";
 
 const version = "15.9.1";
 
@@ -12,7 +13,18 @@ function Summoner() {
   const [gameName, setGameName] = useState(null);
   const [tagLine, setTagLine] = useState(null);
   const [level, setLevel] = useState(null);
+  const [soloTierRank, setSoloTierRank] = useState(null);
+  const [flexTierRank, setFlexTierRank] = useState(null);
   const [profileIconId, setProfileIconId] = useState(0);
+
+  const representativeTierRank = useMemo(() => {
+    return soloTierRank ?? flexTierRank ?? null;
+  }, [soloTierRank, flexTierRank]);
+
+  const repRankImageUrl = useMemo(() => {
+    if (representativeTierRank == null) return "/images/null.png";
+    return `https://opgg-static.akamaized.net/images/medals_new/${representativeTierRank.tier?.toLowerCase()}.png`;
+  }, [representativeTierRank]);
 
   const load = async () => {
     try {
@@ -27,12 +39,18 @@ function Summoner() {
       setGameName(result.data.account.gameName);
       setTagLine(result.data.account.tagLine);
 
+      const solo = result.data.summonerRank?.[QueueType.SOLO_RANK] ?? null;
+      setSoloTierRank(solo ? { tier: solo?.tier, rank: solo?.rank } : null);
+
+      const flex = result.data.summonerRank?.[QueueType.FLEX_RANK] ?? null;
+      setFlexTierRank(flex ? { tier: flex?.tier, rank: flex?.rank } : null);
+
       console.log(result);
     } catch (err) {
       console.error(err);
     }
   };
-
+  // console.log(soloTierRank);
   const onRefresh = () => {
     load();
   };
@@ -58,7 +76,7 @@ function Summoner() {
 
         <div className="main-rank-info">
           <div className="main-rank imgw">
-            <img className="rank-icon" src="/images/null.png"></img>
+            <img className="rank-icon" src={repRankImageUrl}></img>
           </div>
           <div className="main-lanes">
             <div className="lane1 imgw">
