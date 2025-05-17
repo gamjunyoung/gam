@@ -39,7 +39,7 @@ function Summoner() {
           rawGameName
         )}/${encodeURIComponent(rawTagLine)}`
       );
-
+      console.log(result.data);
       setLevel(result.data.summoner.summonerLevel);
       setProfileIconId(result.data.summoner.profileIconId);
       setGameName(result.data.account.gameName);
@@ -58,7 +58,7 @@ function Summoner() {
       console.error(err);
     }
   };
-  // console.log(soloTierRank);
+  console.log(flexTierRank, representativeTierRank);
   const onRefresh = () => {
     toast.promise(load(), {
       loading: "플레이어 정보를 불러오는 중...",
@@ -70,6 +70,8 @@ function Summoner() {
   useEffect(() => {
     load();
   }, []);
+
+  console.log(mostChampName);
 
   return (
     <div className="skeleton">
